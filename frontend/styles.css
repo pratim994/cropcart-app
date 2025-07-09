@@ -1,30 +1,59 @@
-/* styles.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Custom classes with animation */
-.crop-card {
-  @apply bg-white shadow-md rounded-lg overflow-hidden p-4 text-center transition-all duration-300 ease-in-out hover:scale-105;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f4e8; /* Light green */
+  color: #2f4f2f; /* Dark olive */
+  line-height: 1.6;
 }
 
-.crop-card img {
-  @apply w-full h-48 object-cover rounded-md;
-  transition: transform 0.3s ease-in-out;
+.header {
+  background-color: #228b22; /* Forest green */
+  color: white;
+  text-align: center;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.crop-card:hover img {
-  transform: scale(1.05);
-}
+.header h1 { font-size: 3em; margin: 0; }
+.header p { font-size: 1.2em; margin: 10px 0; }
+.header .user-type { margin-top: 10px; }
+.header button { padding: 10px 20px; margin: 0 5px; background-color: #ff4500; color: white; border: none; border-radius: 5px; cursor: pointer; }
+.header button:hover { background-color: #ff8c00; }
 
-.crop-card h3 {
-  @apply text-lg font-semibold text-gray-800;
-}
+.main-content { max-width: 1000px; margin: 30px auto; padding: 30px; }
+section { display: none; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+section.active { display: block; }
 
-button {
-  @apply bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-200;
-}
+h2 { color: #d2691e; /* Chocolate */ font-size: 2em; text-align: center; }
+.form-group, .rating { margin-bottom: 15px; }
+.form-group label, .rating label { font-weight: bold; color: #8b4513; /* Saddle brown */ }
+input, select, textarea { padding: 10px; border: 2px solid #ccc; border-radius: 5px; font-size: 1em; width: 100%; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: #228b22; box-shadow: 0 0 5px rgba(34, 139, 34, 0.5); }
 
-input, select, textarea {
-  @apply border border-gray-300 rounded px-3 py-2 mt-1 block w-full transition duration-200 focus:ring-2 focus:ring-green-500;
+button { padding: 12px 24px; background-color: #ff4500; /* Orange-red */ color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; transition: background-color 0.3s; }
+button:hover { background-color: #ff8c00; }
+
+.crop-card { background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); text-align: center; margin: 10px 0; }
+.crop-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+.crop-card h3 { font-size: 1.5em; color: #2f4f2f; }
+.crop-card p { font-size: 1em; color: #555; }
+.crop-card button { margin-top: 10px; }
+
+.search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+.search-bar input { flex-grow: 1; }
+#farmerCropsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+.order-summary, .payment-method { margin-bottom: 20px; }
+textarea { height: 100px; resize: vertical; }
+
+.footer { background-color: #8b4513; /* Saddle brown */ color: white; text-align: center; padding: 15px; margin-top: 20px; }
+
+.loading { text-align: center; color: #8b4513; font-style: italic; }
+
+@media (max-width: 600px) {
+  .header h1 { font-size: 2em; }
+  .header p { font-size: 1em; }
+  section { padding: 10px; }
+  input, select, textarea { font-size: 0.9em; }
+  button { font-size: 1em; padding: 10px 20px; }
 }

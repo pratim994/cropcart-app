@@ -9,5 +9,4 @@ router.post('/', authenticateToken, chatController.sendMessage);
 
 // GET /api/chats/:farmer_id/:customer_id - Fetch chat messages
 router.get('/:farmer_id/:customer_id', authenticateToken, chatController.getMessages);
-
 module.exports = router;

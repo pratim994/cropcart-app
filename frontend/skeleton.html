@@ -1,697 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroMarket - Farm to Table</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .loading-spinner {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .crop-card {
-            transition: all 0.3s ease;
-        }
-        .crop-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroMarket - Fresh & Local</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-50">
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="fixed inset-0 bg-green-600 flex items-center justify-center z-50">
-        <div class="text-center text-white">
-            <div class="loading-spinner w-16 h-16 border-4 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-            <h2 class="text-2xl font-bold mb-2">AgroMarket</h2>
-            <p class="text-green-100">Connecting Farmers to Customers</p>
-        </div>
+<body>
+  <header class="header">
+    <h1>AgroMarket</h1>
+    <p>Connecting Farmers to Customers</p>
+    <div class="user-type">
+      <button id="customerBtn">Customer</button>
+      <button id="farmerBtn">Farmer</button>
     </div>
+  </header>
 
-    <!-- Navigation -->
-    <nav id="navbar" class="bg-white shadow-lg sticky top-0 z-40 hidden">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-seedling text-green-600 text-2xl"></i>
-                    <span class="text-2xl font-bold text-green-600">AgroMarket</span>
-                </div>
-                <div class="flex items-center space-x-6">
-                    <button id="customerBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Customer</button>
-                    <button id="farmerBtn" class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50">Farmer</button>
-                    <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search crops or farmers..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
+  <main class="main-content">
+    <section class="login-section" id="loginSection">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email:</label>
+          <input type="email" id="loginEmail" name="email" required>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main id="mainContent" class="hidden">
-
-        <!-- Customer View -->
-        <div id="customerView" class="container mx-auto px-4 py-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Fresh Crops & Trusted Farmers</h1>
-                <p class="text-gray-600">Discover quality produce directly from local farmers</p>
-            </div>
-
-            <!-- Filter Tabs -->
-            <div class="flex space-x-4 mb-6">
-                <button id="showCropsBtn" class="px-6 py-2 bg-green-600 text-white rounded-lg font-medium">Browse by Crops</button>
-                <button id="showFarmersBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300">Browse by Farmers</button>
-            </div>
-
-            <!-- Crops Grid -->
-            <div id="cropsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Crop cards will be dynamically generated -->
-            </div>
-
-            <!-- Farmers Grid -->
-            <div id="farmersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
-                <!-- Farmer cards will be dynamically generated -->
-            </div>
+        <div class="form-group">
+          <label for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" name="password" required>
         </div>
+        <button type="submit">Login</button>
+      </form>
+      <p id="loginMessage"></p>
+    </section>
 
-        <!-- Farmer View -->
-        <div id="farmerView" class="container mx-auto px-4 py-8 hidden">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Your Crop Inventory</h1>
-                <p class="text-gray-600">Manage your crops and track sales</p>
-            </div>
+    <section class="market-section" id="marketSection" style="display: none;">
+      <h2>Fresh Crops & Trusted Farmers</h2>
+      <p>Discover quality produce directly from local farmers</p>
+      <div class="search-bar">
+        <input type="text" id="cropSearch" placeholder="Search crops...">
+        <button onclick="filterCrops()">Search</button>
+      </div>
+      <div id="crop-list"></div>
+    </section>
 
-            <div class="mb-6">
-                <button id="addCropBtn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    <i class="fas fa-plus mr-2"></i>Add New Crop
-                </button>
-            </div>
+    <section class="farmer-section" id="farmerSection" style="display: none;">
+      <h2>Your Crop Inventory</h2>
+      <p>Manage your crops and track sales</p>
+      <button id="addCropBtn">Add New Crop</button>
+      <div id="farmerCropsGrid"></div>
+    </section>
 
-            <div id="farmerCropsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Farmer's crop cards will be dynamically generated -->
-            </div>
-        </div>
-    </main>
+    <section class="payment-section" id="paymentSection" style="display: none;">
+      <h2>Payment</h2>
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        <p>Crop: <span id="orderCrop"></span></p>
+        <p>Quantity: <span id="orderQuantity"></span></p>
+        <p>Total: <span id="orderTotal"></span></p>
+      </div>
+      <div class="payment-method">
+        <h3>Payment Method</h3>
+        <select id="paymentMethod">
+          <option value="google_pay">Google Pay</option>
+          <option value="upi">UPI ID</option>
+          <option value="card">Credit/Debit Card</option>
+        </select>
+      </div>
+      <button id="payNowBtn">Pay Now</button>
+      <button id="cancelPaymentBtn">Cancel</button>
+    </section>
 
-    <!-- Crop Detail Modal -->
-    <div id="cropDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 id="modalTitle" class="text-2xl font-bold text-gray-800"></h2>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-2xl"></i>
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <img id="modalImage" src="" alt="" class="w-full h-64 object-cover rounded-lg mb-4">
-                        <div class="grid grid-cols-2 gap-2">
-                            <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=150&h=150&fit=crop" class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75">
-                            <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=150&h=150&fit=crop" class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div class="mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Farmer Information</h3>
-                            <p class="text-gray-600" id="modalFarmerName"></p>
-                            <p class="text-green-600 font-medium" id="modalContact"></p>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Crop Details</h3>
-                            <div class="space-y-2">
-                                <p class="text-gray-600"><span class="font-medium">Price:</span> <span id="modalPrice" class="text-green-600 font-bold"></span></p>
-                                <p class="text-gray-600"><span class="font-medium">Quantity Available:</span> <span id="modalQuantity"></span></p>
-                                <p class="text-gray-600"><span class="font-medium">Quality Grade:</span> <span id="modalGrade"></span></p>
-                                <p class="text-gray-600"><span class="font-medium">Harvest Date:</span> <span id="modalHarvestDate"></span></p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex space-x-3 mb-4">
-                            <button id="buyBtn" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-medium">
-                                <i class="fas fa-shopping-cart mr-2"></i>Buy Now
-                            </button>
-                            <button id="chatBtn" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-medium">
-                                <i class="fas fa-comment mr-2"></i>Chat
-                            </button>
-                            <button id="reviewsBtn" class="flex-1 bg-yellow-600 text-white py-3 rounded-lg hover:bg-yellow-700 font-medium">
-                                <i class="fas fa-star mr-2"></i>Reviews
-                            </button>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity (kg)</label>
-                            <input type="number" id="quantityInput" min="1" value="1" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <section class="review-section" id="reviewSection" style="display: none;">
+      <h2>Leave a Review</h2>
+      <div class="rating">
+        <label>Rating:</label>
+        <select id="reviewRating">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <textarea id="reviewText" placeholder="Your Review"></textarea>
+      <button id="submitReviewBtn">Submit Review</button>
+      <button id="cancelReviewBtn">Cancel</button>
+    </section>
 
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg max-w-md w-full mx-4">
-            <div class="p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Payment</h2>
-                
-                <div class="mb-4">
-                    <h3 class="font-medium text-gray-700 mb-2">Order Summary</h3>
-                    <div class="bg-gray-50 p-3 rounded-lg">
-                        <p class="text-sm text-gray-600">Crop: <span id="paymentCropName" class="font-medium"></span></p>
-                        <p class="text-sm text-gray-600">Quantity: <span id="paymentQuantity" class="font-medium"></span></p>
-                        <p class="text-sm text-gray-600">Total: <span id="paymentTotal" class="font-medium text-green-600"></span></p>
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <h3 class="font-medium text-gray-700 mb-3">Payment Method</h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center">
-                            <input type="radio" name="paymentMethod" value="gpay" checked class="mr-2">
-                            <i class="fab fa-google-pay text-2xl mr-2"></i>
-                            <span>Google Pay</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="paymentMethod" value="upi" class="mr-2">
-                            <i class="fas fa-mobile-alt text-2xl mr-2"></i>
-                            <span>UPI ID</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="paymentMethod" value="card" class="mr-2">
-                            <i class="fas fa-credit-card text-2xl mr-2"></i>
-                            <span>Credit/Debit Card</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button id="cancelPayment" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
-                    <button id="processPayment" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Pay Now</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <section class="success-section" id="successSection" style="display: none;">
+      <h2>Success!</h2>
+      <p>Your action was completed successfully.</p>
+      <button id="okBtn">OK</button>
+    </section>
+  </main>
 
-    <!-- Review Modal -->
-    <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg max-w-md w-full mx-4">
-            <div class="p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Leave a Review</h2>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                    <div class="flex space-x-1" id="starRating">
-                        <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400" data-rating="1"></i>
-                        <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400" data-rating="2"></i>
-                        <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400" data-rating="3"></i>
-                        <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400" data-rating="4"></i>
-                        <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400" data-rating="5"></i>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
-                    <textarea id="reviewText" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Share your experience..."></textarea>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button id="cancelReview" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
-                    <button id="submitReview" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Submit Review</button>
-                </div>
-            </div>
-        </div>
-    </div>
+  <footer class="footer">
+    <p>© 2025 AgroMarket. Sustainable Farming, Fresh Harvests.</p>
+  </footer>
 
-    <!-- Success Modal -->
-    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg max-w-md w-full mx-4">
-            <div class="p-6 text-center">
-                <i class="fas fa-check-circle text-6xl text-green-600 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Success!</h2>
-                <p id="successMessage" class="text-gray-600 mb-4"></p>
-                <button id="closeSuccess" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Sample data
-        const cropsData = [
-            {
-                id: 1,
-                name: 'Tomatoes',
-                farmer: 'Raj Kumar',
-                price: 45,
-                quantity: '500 kg',
-                grade: 'Grade A',
-                harvestDate: '2024-01-15',
-                contact: '+91 9876543210',
-                image: 'https://images.unsplash.com/photo-1546470427-e26264e6081e?w=400&h=300&fit=crop',
-                description: 'Fresh organic tomatoes from our farm'
-            },
-            {
-                id: 2,
-                name: 'Wheat',
-                farmer: 'Priya Singh',
-                price: 25,
-                quantity: '1000 kg',
-                grade: 'Grade A+',
-                harvestDate: '2024-01-10',
-                contact: '+91 9876543211',
-                image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop',
-                description: 'Premium quality wheat'
-            },
-            {
-                id: 3,
-                name: 'Rice',
-                farmer: 'Amit Patel',
-                price: 40,
-                quantity: '750 kg',
-                grade: 'Grade A',
-                harvestDate: '2024-01-12',
-                contact: '+91 9876543212',
-                image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
-                description: 'Basmati rice from Punjab'
-            },
-            {
-                id: 4,
-                name: 'Potatoes',
-                farmer: 'Maya Sharma',
-                price: 20,
-                quantity: '800 kg',
-                grade: 'Grade B+',
-                harvestDate: '2024-01-08',
-                contact: '+91 9876543213',
-                image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=300&fit=crop',
-                description: 'Fresh potatoes'
-            },
-            {
-                id: 5,
-                name: 'Onions',
-                farmer: 'Suresh Reddy',
-                price: 30,
-                quantity: '600 kg',
-                grade: 'Grade A',
-                harvestDate: '2024-01-14',
-                contact: '+91 9876543214',
-                image: 'https://images.unsplash.com/photo-1508747703725-719777637510?w=400&h=300&fit=crop',
-                description: 'Red onions from Maharashtra'
-            },
-            {
-                id: 6,
-                name: 'Carrots',
-                farmer: 'Anita Gupta',
-                price: 35,
-                quantity: '400 kg',
-                grade: 'Grade A',
-                harvestDate: '2024-01-11',
-                contact: '+91 9876543215',
-                image: 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400&h=300&fit=crop',
-                description: 'Organic carrots'
-            },
-           
-        ];
-
-        const farmersData = [
-            {
-                id: 1,
-                name: 'Raj Kumar',
-                location: 'Punjab',
-                crops: ['Tomatoes', 'Cabbage'],
-                contact: '+91 9876543210',
-                rating: 4.8,
-                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop'
-            },
-            {
-                id: 2,
-                name: 'Priya Singh',
-                location: 'Haryana',
-                crops: ['Wheat', 'Barley'],
-                contact: '+91 9876543211',
-                rating: 4.9,
-                image: 'https://images.unsplash.com/photo-1494790108755-2616c4a61333?w=150&h=150&fit=crop'
-            },
-            {
-                id: 3,
-                name: 'Amit Patel',
-                location: 'Gujarat',
-                crops: ['Rice', 'Cotton'],
-                contact: '+91 9876543212',
-                rating: 4.7,
-                image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop'
-            },
-            {
-                id:4,
-                name:'andrew hate',
-                location:'slums of nigeria',
-                crops:['Rice','Cotton'],
-                contact: '+91 9876543212',
-                rating: 0.5,
-                image: 'https://es.pinterest.com/conchicoach/jon-kortajarena/'
-            }
-        ];
-
-        let currentRating = 0;
-        let currentCrop = null;
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show loading screen for 2 seconds
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                document.getElementById('navbar').classList.remove('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                loadCrops();
-            }, 2000);
-
-            setupEventListeners();
-        });
-
-        function setupEventListeners() {
-            // Navigation
-            document.getElementById('customerBtn').addEventListener('click', showCustomerView);
-            document.getElementById('farmerBtn').addEventListener('click', showFarmerView);
-            document.getElementById('showCropsBtn').addEventListener('click', showCropsView);
-            document.getElementById('showFarmersBtn').addEventListener('click', showFarmersView);
-
-            // Modals
-            document.getElementById('closeModal').addEventListener('click', closeModal);
-            document.getElementById('buyBtn').addEventListener('click', showPaymentModal);
-            document.getElementById('chatBtn').addEventListener('click', () => alert('Chat feature coming soon!'));
-            document.getElementById('reviewsBtn').addEventListener('click', showReviewModal);
-
-            // Payment
-            document.getElementById('cancelPayment').addEventListener('click', closePaymentModal);
-            document.getElementById('processPayment').addEventListener('click', processPayment);
-
-            // Review
-            document.getElementById('cancelReview').addEventListener('click', closeReviewModal);
-            document.getElementById('submitReview').addEventListener('click', submitReview);
-            document.getElementById('closeSuccess').addEventListener('click', closeSuccessModal);
-
-            // Star rating
-            document.querySelectorAll('#starRating i').forEach(star => {
-                star.addEventListener('click', function() {
-                    currentRating = parseInt(this.dataset.rating);
-                    updateStarRating(currentRating);
-                });
-            });
-
-            // Search
-            document.getElementById('searchInput').addEventListener('input', handleSearch);
-
-            // Close modals on backdrop click
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
-                    closeModal();
-                    closePaymentModal();
-                    closeReviewModal();
-                    closeSuccessModal();
-                }
-            });
-        }
-
-        function showCustomerView() {
-            document.getElementById('customerView').classList.remove('hidden');
-            document.getElementById('farmerView').classList.add('hidden');
-            document.getElementById('customerBtn').classList.add('bg-green-600', 'text-white');
-            document.getElementById('customerBtn').classList.remove('border', 'border-green-600', 'text-green-600');
-            document.getElementById('farmerBtn').classList.remove('bg-green-600', 'text-white');
-            document.getElementById('farmerBtn').classList.add('border', 'border-green-600', 'text-green-600');
-        }
-
-        function showFarmerView() {
-            document.getElementById('farmerView').classList.remove('hidden');
-            document.getElementById('customerView').classList.add('hidden');
-            document.getElementById('farmerBtn').classList.add('bg-green-600', 'text-white');
-            document.getElementById('farmerBtn').classList.remove('border', 'border-green-600', 'text-green-600');
-            document.getElementById('customerBtn').classList.remove('bg-green-600', 'text-white');
-            document.getElementById('customerBtn').classList.add('border', 'border-green-600', 'text-green-600');
-            loadFarmerCrops();
-        }
-
-        function showCropsView() {
-            document.getElementById('cropsGrid').classList.remove('hidden');
-            document.getElementById('farmersGrid').classList.add('hidden');
-            document.getElementById('showCropsBtn').classList.add('bg-green-600', 'text-white');
-            document.getElementById('showCropsBtn').classList.remove('bg-gray-200', 'text-gray-700');
-            document.getElementById('showFarmersBtn').classList.remove('bg-green-600', 'text-white');
-            document.getElementById('showFarmersBtn').classList.add('bg-gray-200', 'text-gray-700');
-            loadCrops();
-        }
-
-        function showFarmersView() {
-            document.getElementById('farmersGrid').classList.remove('hidden');
-            document.getElementById('cropsGrid').classList.add('hidden');
-            document.getElementById('showFarmersBtn').classList.add('bg-green-600', 'text-white');
-            document.getElementById('showFarmersBtn').classList.remove('bg-gray-200', 'text-gray-700');
-            document.getElementById('showCropsBtn').classList.remove('bg-green-600', 'text-white');
-            document.getElementById('showCropsBtn').classList.add('bg-gray-200', 'text-gray-700');
-            loadFarmers();
-        }
-
-        function loadCrops() {
-            const grid = document.getElementById('cropsGrid');
-            grid.innerHTML = '';
-            
-            cropsData.forEach(crop => {
-                const card = createCropCard(crop);
-                grid.appendChild(card);
-            });
-        }
-
-        function loadFarmers() {
-            const grid = document.getElementById('farmersGrid');
-            grid.innerHTML = '';
-            
-            farmersData.forEach(farmer => {
-                const card = createFarmerCard(farmer);
-                grid.appendChild(card);
-            });
-        }
-
-        function loadFarmerCrops() {
-            const grid = document.getElementById('farmerCropsGrid');
-            grid.innerHTML = '';
-            
-            // Sample farmer's crops with sales data
-            const farmerCrops = [
-                { name: 'Tomatoes', sold: 200, remaining: 300, price: 45, image: 'https://images.unsplash.com/photo-1546470427-e26264e6081e?w=400&h=300&fit=crop' },
-                { name: 'Cabbage', sold: 150, remaining: 250, price: 25, image: 'https://images.unsplash.com/photo-1594282180155-7889f1a4c582?w=400&h=300&fit=crop' }
-            ];
-            
-            farmerCrops.forEach(crop => {
-                const card = createFarmerCropCard(crop);
-                grid.appendChild(card);
-            });
-        }
-
-        function createCropCard(crop) {
-            const card = document.createElement('div');
-            card.className = 'crop-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer fade-in';
-            card.innerHTML = `
-                <img src="${crop.image}" alt="${crop.name}" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${crop.name}</h3>
-                    <p class="text-gray-600 mb-2">by ${crop.farmer}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-bold text-green-600">₹${crop.price}/kg</span>
-                        <span class="text-sm text-gray-500">${crop.quantity} available</span>
-                    </div>
-                    <div class="mt-2">
-                        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${crop.grade}</span>
-                    </div>
-                </div>
-            `;
-            
-            card.addEventListener('click', () => showCropDetail(crop));
-            return card;
-        }
-
-        function createFarmerCard(farmer) {
-            const card = document.createElement('div');
-            card.className = 'crop-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer fade-in';
-            card.innerHTML = `
-                <div class="p-6">
-                    <div class="flex items-center mb-4">
-                        <img src="${farmer.image}" alt="${farmer.name}" class="w-16 h-16 rounded-full object-cover mr-4">
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">${farmer.name}</h3>
-                            <p class="text-gray-600">${farmer.location}</p>
-                            <div class="flex items-center mt-1">
-                                <div class="flex text-yellow-400">
-                                    ${'★'.repeat(Math.floor(farmer.rating))}${'☆'.repeat(5 - Math.floor(farmer.rating))}
-                                </div>
-                                <span class="text-sm text-gray-500 ml-2">${farmer.rating}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 mb-2">Crops:</p>
-                        <div class="flex flex-wrap gap-2">
-                            ${farmer.crops.map(crop => `<span class="bg-green-100 text-green-800 text-sm px-2 py-1 rounded">${crop}</span>`).join('')}
-                        </div>
-                    </div>
-                    <p class="text-green-600 font-medium mt-3">${farmer.contact}</p>
-                </div>
-            `;
-            
-            card.addEventListener('click', () => showFarmerCrops(farmer));
-            return card;
-        }
-
-        function createFarmerCropCard(crop) {
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-lg shadow-md overflow-hidden fade-in';
-            card.innerHTML = `
-                <img src="${crop.image}" alt="${crop.name}" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${crop.name}</h3>
-                    <div class="space-y-2">
-                        <p class="text-gray-600">Price: <span class="font-semibold text-green-
-                            600">₹${crop.price}/kg</span></p>
-                        <p class="text-gray-600">Sold: <span class="font-semibold">${crop.sold} kg</span></p>
-                        <p class="text-gray-600">Remaining: <span class="font-semibold">${crop.remaining} kg</span></p>
-                        <div class="mt-3">
-                            <div class="bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-600 h-2 rounded-full" style="width: ${(crop.sold / (crop.sold + crop.remaining)) * 100}%"></div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">${Math.round((crop.sold / (crop.sold + crop.remaining)) * 100)}% sold</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex space-x-2">
-                        <button class="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700">Edit</button>
-                        <button class="flex-1 bg-red-600 text-white py-2 px-3 rounded text-sm hover:bg-red-700">Remove</button>
-                    </div>
-                </div>
-            `;
-            return card;
-        }
-
-        function showCropDetail(crop) {
-            currentCrop = crop;
-            document.getElementById('modalTitle').textContent = crop.name;
-            document.getElementById('modalImage').src = crop.image;
-            document.getElementById('modalFarmerName').textContent = crop.farmer;
-            document.getElementById('modalContact').textContent = crop.contact;
-            document.getElementById('modalPrice').textContent = `₹${crop.price}/kg`;
-            document.getElementById('modalQuantity').textContent = crop.quantity;
-            document.getElementById('modalGrade').textContent = crop.grade;
-            document.getElementById('modalHarvestDate').textContent = crop.harvestDate;
-            document.getElementById('cropDetailModal').classList.remove('hidden');
-        }
-
-        function showFarmerCrops(farmer) {
-            // Filter crops by farmer
-            const farmerCrops = cropsData.filter(crop => crop.farmer === farmer.name);
-            const grid = document.getElementById('cropsGrid');
-            grid.innerHTML = '';
-            
-            farmerCrops.forEach(crop => {
-                const card = createCropCard(crop);
-                grid.appendChild(card);
-            });
-        }
-
-        function closeModal() {
-            document.getElementById('cropDetailModal').classList.add('hidden');
-        }
-
-        function showPaymentModal() {
-            const quantity = document.getElementById('quantityInput').value;
-            const total = currentCrop.price * quantity;
-            
-            document.getElementById('paymentCropName').textContent = currentCrop.name;
-            document.getElementById('paymentQuantity').textContent = `${quantity} kg`;
-            document.getElementById('paymentTotal').textContent = `₹${total}`;
-            document.getElementById('paymentModal').classList.remove('hidden');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
-        }
-
-        function processPayment() {
-            // Simulate payment processing
-            closePaymentModal();
-            closeModal();
-            showSuccessModal('Payment successful! Your order has been placed.');
-        }
-
-        function showReviewModal() {
-            document.getElementById('reviewModal').classList.remove('hidden');
-        }
-
-        function closeReviewModal() {
-            document.getElementById('reviewModal').classList.add('hidden');
-            currentRating = 0;
-            updateStarRating(0);
-            document.getElementById('reviewText').value = '';
-        }
-
-        function submitReview() {
-            if (currentRating === 0) {
-                alert('Please select a rating');
-                return;
-            }
-            closeReviewModal();
-            showSuccessModal('Thank you for your review!');
-        }
-
-        function updateStarRating(rating) {
-            document.querySelectorAll('#starRating i').forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.remove('text-gray-300');
-                    star.classList.add('text-yellow-400');
-                } else {
-                    star.classList.remove('text-yellow-400');
-                    star.classList.add('text-gray-300');
-                }
-            });
-        }
-
-        function showSuccessModal(message) {
-            document.getElementById('successMessage').textContent = message;
-            document.getElementById('successModal').classList.remove('hidden');
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.add('hidden');
-        }
-
-        function handleSearch() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredCrops = cropsData.filter(crop => 
-                crop.name.toLowerCase().includes(searchTerm) || 
-                crop.farmer.toLowerCase().includes(searchTerm)
-            );
-            
-            const grid = document.getElementById('cropsGrid');
-            grid.innerHTML = '';
-            
-            filteredCrops.forEach(crop => {
-                const card = createCropCard(crop);
-                grid.appendChild(card);
-            });
-        }
-        
-    </script>
+  <script type="module" src="api.js" defer></script>
+  <script type="module" src="farmer.js" defer></script>
+  <script type="module" src="customer.js" defer></script>
+  <script type="module" src="auth.js" defer></script>
 </body>
 </html>

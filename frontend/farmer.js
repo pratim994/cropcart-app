@@ -1,16 +1,18 @@
-// frontend/farmer.js
 import { getFarmerCrops, addCrop } from './api.js';
+import { showSection } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const farmerViewBtn = document.getElementById('farmerBtn');
+  const addCropBtn = document.getElementById('addCropBtn');
+  const farmerSection = document.getElementById('farmerSection');
+
   if (farmerViewBtn) {
     farmerViewBtn.addEventListener('click', () => {
       loadFarmerCrops();
-      showFarmerView();
+      showSection('farmerSection');
     });
   }
 
-  const addCropBtn = document.getElementById('addCropBtn');
   if (addCropBtn) {
     addCropBtn.addEventListener('click', showAddCropForm);
   }
@@ -18,119 +20,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadFarmerCrops() {
   const grid = document.getElementById('farmerCropsGrid');
-  grid.innerHTML = '';
-  const crops = await getFarmerCrops();
+  if (!grid) return;
+  grid.innerHTML = '<div class="loading">Loading crops...</div>';
 
-  crops.forEach(crop => {
-    const card = document.createElement('div');
-    card.className = 'bg-white rounded-lg shadow-md overflow-hidden';
-    card.innerHTML = `
-      <img src="${crop.image_url}" alt="${crop.name}" class="w-full h-48 object-cover">
-      <div class="p-4">
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">${crop.name}</h3>
-        <p class="text-gray-600">Sold: ${crop.quantity_sold} kg</p>
-        <p class="text-gray-600">Remaining: ${crop.quantity_available} kg</p>
-        <p class="text-gray-600 text-sm mt-2">Grade: ${crop.grade || '-'}</p>
-        <p class="text-gray-600 text-sm">Harvest: ${crop.harvest_date || '-'}</p>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-function showAddCropForm() {
-  const name = prompt('Crop name:');
-  const price = prompt('Price per kg:');
-  const quantity = prompt('Available quantity:');
-  const grade = prompt('Quality grade (e.g., A, B+):');
-  const harvest = prompt('Harvest date (YYYY-MM-DD):');
-
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-  fileInput.onchange = async () => {
-    const file = fileInput.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('price', price);
-      formData.append('quantity_available', quantity);
-      formData.append('grade', grade);
-      formData.append('harvest_date', harvest);
-      formData.append('image', file);
-
-      const res = await addCrop(formData);
-      alert(res.message || 'Crop added!');
-      loadFarmerCrops();
-    }
-  };
-  fileInput.click();
-}
-// frontend/farmer.js
-import { getFarmerCrops, addCrop } from './api.js';
-
-document.addEventListener('DOMContentLoaded', () => {
-  const farmerViewBtn = document.getElementById('farmerBtn');
-  if (farmerViewBtn) {
-    farmerViewBtn.addEventListener('click', () => {
-      loadFarmerCrops();
-      showFarmerView();
+  try {
+    const crops = await getFarmerCrops();
+    grid.innerHTML = '';
+    if (crops.length === 0) grid.innerHTML = '<p>No crops available.</p>';
+    else crops.forEach(crop => {
+      const card = document.createElement('div');
+      card.className = 'crop-card';
+      card.innerHTML = `
+        <img src="${crop.image_url || '/default-image.jpg'}" alt="${crop.name}">
+        <h3>${crop.name}</h3>
+        <p>Sold: ${crop.quantity_sold} kg</p>
+        <p>Remaining: ${crop.quantity_available} kg</p>
+        <p>Grade: ${crop.grade || '-'}</p>
+        <p>Harvest: ${crop.harvest_date || '-'}</p>
+      `;
+      grid.appendChild(card);
     });
+  } catch (error) {
+    grid.innerHTML = `<p>Error loading crops: ${error.message}</p>`;
   }
-
-  const addCropBtn = document.getElementById('addCropBtn');
-  if (addCropBtn) {
-    addCropBtn.addEventListener('click', showAddCropForm);
-  }
-});
-
-async function loadFarmerCrops() {
-  const grid = document.getElementById('farmerCropsGrid');
-  grid.innerHTML = '';
-  const crops = await getFarmerCrops();
-
-  crops.forEach(crop => {
-    const card = document.createElement('div');
-    card.className = 'bg-white rounded-lg shadow-md overflow-hidden';
-    card.innerHTML = `
-      <img src="${crop.image_url}" alt="${crop.name}" class="w-full h-48 object-cover">
-      <div class="p-4">
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">${crop.name}</h3>
-        <p class="text-gray-600">Sold: ${crop.quantity_sold} kg</p>
-        <p class="text-gray-600">Remaining: ${crop.quantity_available} kg</p>
-        <p class="text-gray-600 text-sm mt-2">Grade: ${crop.grade || '-'}</p>
-        <p class="text-gray-600 text-sm">Harvest: ${crop.harvest_date || '-'}</p>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
 }
 
 function showAddCropForm() {
-  const name = prompt('Crop name:');
-  const price = prompt('Price per kg:');
-  const quantity = prompt('Available quantity:');
-  const grade = prompt('Quality grade (e.g., A, B+):');
-  const harvest = prompt('Harvest date (YYYY-MM-DD):');
-
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-  fileInput.onchange = async () => {
-    const file = fileInput.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('price', price);
-      formData.append('quantity_available', quantity);
-      formData.append('grade', grade);
-      formData.append('harvest_date', harvest);
-      formData.append('image', file);
-
+  const form = document.createElement('form');
+  form.innerHTML = `
+    <input type="text" name="name" placeholder="Crop name" required>
+    <input type="number" name="price" placeholder="Price per kg" step="0.01" required>
+    <input type="number" name="quantity_available" placeholder="Quantity" required>
+    <input type="text" name="grade" placeholder="Quality grade (e.g., A)">
+    <input type="date" name="harvest_date" required>
+    <input type="file" name="image" accept="image/*">
+    <button type="submit">Add Crop</button>
+  `;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    try {
       const res = await addCrop(formData);
       alert(res.message || 'Crop added!');
       loadFarmerCrops();
+      form.remove();
+    } catch (error) {
+      alert(`Error: ${error.message}`);
     }
-  };
-  fileInput.click();
+  });
+  document.getElementById('farmerCropsGrid').appendChild(form);
 }

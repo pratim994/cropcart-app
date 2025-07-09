@@ -1,63 +1,71 @@
-// frontend/api.js
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:3000/api';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+async function fetchWithRetry(url, options, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+}
+
 export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  return fetchWithRetry(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return res.json();
 }
 
 export async function register(data) {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  return fetchWithRetry(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  return res.json();
 }
 
 export async function getCrops() {
-  const res = await fetch(`${API_BASE}/crops`);
-  return res.json();
+  return fetchWithRetry(`${API_BASE}/crops`, { headers: getAuthHeaders() });
 }
 
 export async function placeOrder(crop_id, quantity, payment_method = 'upi') {
-  const res = await fetch(`${API_BASE}/orders`, {
+  return fetchWithRetry(`${API_BASE}/orders`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders()
-    },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ crop_id, quantity, payment_method })
   });
-  return res.json();
 }
 
-
 export async function getFarmerCrops() {
-  const res = await fetch('/api/crops/farmer/mine', {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
-  });
-  return res.json();
+  return fetchWithRetry(`${API_BASE}/crops/farmer/mine`, { headers: getAuthHeaders() });
 }
 
 export async function addCrop(formData) {
-  const res = await fetch('/api/crops', {
+  return fetchWithRetry(`${API_BASE}/crops`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    },
+    headers: getAuthHeaders(),
     body: formData
   });
-  return res.json();
+}
+
+export async function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/';
+}
+
+export function showSection(sectionId) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  const section = document.getElementById(sectionId);
+  if (section) section.classList.add('active');
 }
